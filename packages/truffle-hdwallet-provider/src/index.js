@@ -18,17 +18,26 @@ const ethUtil = require("ethereumjs-util");
 // See issue #65 for more
 const singletonNonceSubProvider = new NonceSubProvider();
 
+
+
+
 class HDWalletProvider {
   constructor(
     mnemonic,
     provider,
-    address_index = 0,
-    num_addresses = 1,
-    shareNonce = true,
-    wallet_hdpath = "m/44'/60'/0'/0/"
+    options,
   ) {
+    const {
+      address_index = 0,
+      num_addresses = 1,
+      shareNonce = true,
+      wallet_hdpath = "m/44'/60'/0'/0/",
+      http_headers
+    } = options;
+
     this.hdwallet;
     this.wallet_hdpath = wallet_hdpath;
+    this.http_headers = http_headers;
     this.wallets = {};
     this.addresses = [];
     this.engine = new ProviderEngine();
@@ -139,7 +148,7 @@ class HDWalletProvider {
       // Web3.providers.HttpProvider.prototype.send;
       this.engine.addProvider(
         new ProviderSubprovider(
-          new Web3.providers.HttpProvider(provider, { keepAlive: false })
+          new Web3.providers.HttpProvider(provider, { keepAlive: false, ...this.http_headers })
         )
       );
     } else {
